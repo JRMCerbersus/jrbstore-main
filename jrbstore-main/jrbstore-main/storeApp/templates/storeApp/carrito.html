@@ -1,0 +1,98 @@
+{% extends 'index.html' %}
+
+{% block contenido %}
+{% block welcome_message %}
+<!-- Este bloque está vacío para no mostrar el mensaje -->
+{% endblock %}
+<div class="container mt-4">
+    <div class="cart-container p-4">
+        <h2>Carrito de Compras</h2>
+        <p>Revisa y administra los productos que has seleccionado para comprar.</p>
+
+        <!-- Productos en el carrito -->
+        {% for item in carrito %}
+        <div class="cart-item d-flex align-items-center">
+            <img src="{{ item.imagen_url }}" alt="{{ item.nombre }}" class="img-fluid" style="max-width: 100px; max-height: 100px;">
+            <div class="cart-item-details flex-grow-1 mx-3">
+                <h5>{{ item.nombre }}</h5>
+                <p class="product-price">Precio: {{ item.precio }} CLP</p>
+                <div class="d-flex align-items-center">
+                    <button type="button" class="btn btn-outline-secondary me-2" onclick="cambiarCantidad('{{ item.codigoBarra }}', -1)">-</button>
+                    <span id="cantidad_{{ item.codigoBarra }}" class="cantidad px-2">{{ item.cantidad }}</span>
+                    <button type="button" class="btn btn-outline-secondary ms-2" onclick="cambiarCantidad('{{ item.codigoBarra }}', 1)">+</button>
+                </div>
+            </div>
+            <div class="cart-item-actions text-end">
+                <p class="total mb-2">Subtotal: {{ item.total }} CLP</p>
+                <a href="{% url 'eliminar_producto_carrito' item.codigoBarra %}" class="btn btn-danger" onclick="return confirmarEliminar('{{ item.codigoBarra }}')">Eliminar</a>
+            </div>
+        </div>
+        <hr>
+        {% endfor %}
+
+        <!-- Resumen y botón de compra -->
+        <div class="d-flex justify-content-between mt-4">
+            <h4 id="total-general">Total General: {{ total }} CLP</h4>
+            <form method="POST" action="{% url 'procesar_pago' %}">
+                {% csrf_token %}
+                {% for item in carrito %}
+                <input type="hidden" name="cantidad_{{ item.codigoBarra }}" value="{{ item.cantidad }}" id="cantidad_{{ item.codigoBarra }}_hidden">
+                {% endfor %}
+                <button type="submit" class="btn btn-primary btn-lg">Proceder al Pago</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function cambiarCantidad(codigoBarra, cambio) {
+        const cantidadElemento = document.getElementById(`cantidad_${codigoBarra}`);
+        let cantidad = parseInt(cantidadElemento.textContent) || 0;
+
+        cantidad += cambio;
+
+        if (cantidad < 1) {
+            cantidad = 1;
+        }
+
+        cantidadElemento.textContent = cantidad;
+
+        const fila = cantidadElemento.closest('.cart-item');
+        const precio = parseInt(fila.querySelector('.product-price').textContent.replace('Precio: ', '').replace(' CLP', ''));
+        const nuevoTotal = cantidad * precio;
+        fila.querySelector('.total').textContent = "Subtotal: " + nuevoTotal + " CLP";
+
+        actualizarTotalGeneral();
+
+        document.getElementById(`cantidad_${codigoBarra}_hidden`).value = cantidad;
+    }
+
+    function actualizarTotalGeneral() {
+        let totalGeneral = 0;
+        document.querySelectorAll('.total').forEach(function (totalElement) {
+            const subtotal = parseInt(totalElement.textContent.replace('Subtotal: ', '').replace(' CLP', '')) || 0;
+            totalGeneral += subtotal;
+        });
+
+        document.getElementById('total-general').textContent = "Total General: " + totalGeneral + " CLP";
+    }
+    function confirmarEliminar() {
+        Swal.fire({
+          title: '¿Estás seguro de eliminar este producto?',
+          text: 'No podrás recuperarlo después de eliminarlo',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, eliminar',
+          cancelButtonText: 'No, cancelar'
+        }).then((result) => {
+          if (result.value) {
+            // Si el usuario hace clic en "Sí, eliminar", se elimina el producto del carrito
+            return true;
+          } else {
+            // Si el usuario hace clic en "No, cancelar", no se elimina el producto del carrito
+            return false;
+          }
+        })
+      }
+</script>
+{% endblock %}

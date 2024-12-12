@@ -1,0 +1,77 @@
+{% extends 'index.html' %}
+{% block contenido %}
+
+{% block welcome_message %}
+<!-- Este bloque está vacío para no mostrar el mensaje -->
+{% endblock %}
+<h3 class="alert alert-secondary text-center titulooe">{{ titulo }}</h3>
+
+<div class="mt-3 mb-3 text-end">
+    <a href="{% url 'tarjetas' %}" class="btn btn-outline-danger">Volver</a>
+</div>
+
+{% if messages %} 
+    {% for msj in messages %}
+        <script>
+            Swal.fire('{{msj}}','','success')
+        </script>
+    {% endfor %}   
+{% endif %}
+
+<form method="post" enctype="multipart/form-data" class="formulariooe">
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label for="codigo-barra"><i class="fas fa-barcode"></i> Código de Barra:</label>
+        {{ formulario.codigoBarra }}
+    </div>
+
+    <div class="form-group">
+        <label for="nombre"><i class="fas fa-gamepad"></i> Nombre:</label>
+        {{ formulario.nombre }}
+    </div>
+
+    <div class="form-group">
+    <label for="categoria">
+        <i class="fas fa-tags"></i>
+        Categoria: 
+    </label>
+    <select name="categoria" class="inputoe" required id="categoria">
+        {% for categoria in categorias %}
+            <option value selected>--------</option>
+            <option value="{{ categoria.id }}">{{ categoria.categoria }}</option>
+        {% endfor %}
+    </select>
+    </div>
+
+    <div class="form-group">
+        <label for="precio"><i class="fas fa-dollar-sign"></i> Precio:</label>
+        {{ formulario.precio }}
+    </div>
+
+    <div class="form-group">
+        <label for="stock"><i class="fas fa-box"></i> Stock:</label>
+        {{ formulario.stock }}
+    </div>
+
+    <div class="form-group">
+        <label for="descripcion"><i class="fas fa-pencil-alt"></i> Descripción:</label>
+        {{ formulario.descripcion }}
+    </div>
+
+    <div class="form-group">
+        <label for="foto"><i class="fas fa-image"></i> Foto:</label>
+        {% if foto_actual %}
+            <div>
+                <img src="{{ foto_actual }}" alt="Foto actual" style="max-width: 100px; max-height: 100px;"/>
+            </div>
+        {% endif %}
+        <input type="file" name="foto" id="foto" accept=".png, .jpg, .jpeg, .webp" required>
+    </div>
+
+    <div class="text-center mt-3">
+        <input type="reset" class="btn btn-outline-info w-25" value="Limpiar">
+        <input type="submit" class="btn btn-primary w-25" value="{{ titulo|lower }}">
+    </div>
+</form>
+{% endblock %}

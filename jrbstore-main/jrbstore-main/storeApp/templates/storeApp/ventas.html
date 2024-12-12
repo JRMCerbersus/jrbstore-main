@@ -1,0 +1,42 @@
+{% extends 'index.html' %}
+
+{% block contenido %}
+{% block welcome_message %}
+<!-- Este bloque está vacío para no mostrar el mensaje -->
+{% endblock %}
+<div class="container mt-4">
+    <h1>Reporte de Ventas</h1>
+    <p>A continuación, se muestra el detalle de todas tus compras.</p>
+
+    {% for venta in ventas_agrupadas %}
+        <div class="boleta">
+            <h4>Venta - Usuario: {{ venta.usuario }} - Fecha: {{ venta.fecha }}</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in venta.productos %}
+                        <tr>
+                            <td>{{ item.producto }}</td>
+                            <td>{{ item.cantidad }}</td>
+                            <td>{{ item.precio_unitario|floatformat:0 }} CLP</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2"><strong>Total de la Venta:</strong></td>
+                        <td><strong>{{ venta.total_venta|floatformat:0 }} CLP</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <hr>
+    {% endfor %}
+</div>
+{% endblock %}

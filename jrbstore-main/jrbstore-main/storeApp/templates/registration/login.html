@@ -1,0 +1,51 @@
+{% extends "index.html" %}
+
+{% block contenido %}
+
+{% block welcome_message %}
+<!-- Este bloque está vacío para no mostrar el mensaje -->
+{% endblock %}
+
+{% if messages %}
+
+<div>
+{% for message in messages %}
+<script>
+        Swal.fire({
+            icon: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% endif %}",
+            title: "{% if message.tags == 'success' %}¡Éxito!{% else %}¡Error!{% endif %}",
+            text: "{{ message }}",
+            confirmButtonText: "OK"
+        });
+    </script>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="container mt-5">
+    <h3 class="alert alert-secondary text-center titulooe">Iniciar Sesión</h3>
+    <form method="post" novalidate class="formulariooe">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="username"><i class="fas fa-user"></i> Usuario</label>
+            <input type="text" name="username" id="username" class="inputoe" required oninput="validarEntrada(this)">
+        </div>
+        <div class="form-group">
+            <label for="password"><i class="fa-solid fa-key"></i> Contraseña</label>
+            <input type="password" name="password" id="password" class="inputoe" required>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Iniciar Sesión</button>
+    </form>
+    
+    <!-- Enlace para recuperar contraseña -->
+    <div class="text-center mt-3">
+        <a href="{% url 'password_reset' %}" class="btn btn-outline-warning">¿Olvidaste tu contraseña?</a>
+    </div>
+</div>
+
+
+<!-- Manejo de mensajes con SweetAlert2 -->
+
+
+{% endblock %}
